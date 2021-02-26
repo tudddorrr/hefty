@@ -88,3 +88,38 @@ describe('classes with constructors', () => {
     }
   })
 })
+
+describe('retain class info', () => {
+  it('should retain class info for one entity', () => {
+    expect(userFactory.one()).toBeInstanceOf(User)
+  })
+
+  it('should retain class info for one entity', () => {
+    for (let user of userFactory.many(3)) {
+      expect(user).toBeInstanceOf(User)
+    }
+  })
+
+  it('should retain class info with a state', () => {
+    expect(userFactory.state('onboarded').one()).toBeInstanceOf(User)
+  })
+
+  it('should retain class info with many states', () => {
+    expect(userFactory.state('onboarded').state('email confirmed').one()).toBeInstanceOf(User)
+  })
+
+  it('should retain class info with overrides', () => {
+    expect(userFactory.with(() => ({ name: 'Bob' })).one()).toBeInstanceOf(User)
+  })
+
+  it('should retain class info with states and overrides', () => {
+    expect(userFactory.state('email confirmed').with(() => ({ name: 'Bob' })).one()).toBeInstanceOf(User)
+  })
+
+  it('should retain class info with states and overrides for many entities', () => {
+    const users = userFactory.state('email confirmed').with(() => ({ name: 'Bob' })).many(3)
+    for (let user of users) {
+      expect(user).toBeInstanceOf(User)
+    }
+  })
+})

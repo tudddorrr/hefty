@@ -15,10 +15,7 @@ export class EntityBuilder<T> {
   private build(entities: T[]): T[] {
     return entities.map((entity: T, idx: number) => {
       for (let builder of this.builders) {
-        entity = {
-          ...entity,
-          ...builder(entity, idx)
-        }
+        Object.assign(entity, builder(entity, idx))
       }
       return entity
     })
