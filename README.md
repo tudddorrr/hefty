@@ -8,7 +8,7 @@ Easy, unopinionated and intuitive Typescript fixtures.
 Hefty lets you create factories, chain multiple states and override those states too. Check out the tests for more examples.
 
 ### Create a Factory
-States need to be registered in the constructor of your factory.
+States need to be registered in the constructor of your factory. States are called with the same params you get with `Array.map()`.
 
 ```
 // User.ts
@@ -79,18 +79,26 @@ Any params passed to `build()` are passed to the constructor for each entity.
 // UserFactory.ts
 export default class UserFactory extends Factory<User> {
   constructor(...defaults: string[]) {
-    super(User, ...defaults)
+    super(User, 'base', ...defaults)
+
+    this.register('base', this.base)
     this.register('onboarded', this.onboarded)
     this.register('email confirmed', this.emailConfirmed)
   }
 
-  protected onboarded(): Partial<User> {
+  base(): Partial<User> {
+    return {
+      createdAt: 'today'
+    }
+  }
+
+  onboarded(): Partial<User> {
     return {
       onboarded: true
     }
   }
 
-  protected emailConfirmed(): Partial<User> {
+  emailConfirmed(): Partial<User> {
     return {
       emailConfirmed: true
     }
@@ -98,6 +106,7 @@ export default class UserFactory extends Factory<User> {
 }
 
 const factory = new UserFactory('email confirmed')
+// => createdAt = today, emailConfirmed: true 
 ```
 
 Any extra strings you pass to the factory base class will be treated as default states. These will be applied before any other states/overrides.

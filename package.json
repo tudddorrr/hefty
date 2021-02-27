@@ -12,7 +12,14 @@
     "build": "tsc -p tsconfig.build.json",
     "prepare": "yarn test && yarn build"
   },
-  "keywords": [],
+  "keywords": [
+    "fixtures",
+    "seeding",
+    "testing",
+    "mock",
+    "generator",
+    "factory"
+  ],
   "devDependencies": {
     "@types/jest": "^26.0.20",
     "@types/node": "^14.14.31",

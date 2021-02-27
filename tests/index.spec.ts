@@ -137,4 +137,9 @@ describe('default states', () => {
     expect(userFactory.one().emailConfirmed).toBe(true)
     expect(userFactory.one().onboarded).toBe(true)
   })
+
+  it('should not apply any unregistered states', () => {
+    const userFactory = new UserFactory('dsafddsa')
+    expect(() => userFactory.one()).toThrow(/Did you forget to register it?/)
+  })
 })
