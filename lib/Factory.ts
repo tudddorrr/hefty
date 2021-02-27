@@ -8,33 +8,39 @@ interface Entity<T> {
 export class Factory<T> {
   private states: StatesRegistry<T>
   private entity: Entity<T>
+  private defaults: string[]
 
-  constructor(entity: Entity<T>) {
+  constructor(entity: Entity<T>, ...defaults: string[]) {
     this.states = {}
     this.entity = entity
+    this.defaults = defaults
   }
 
   protected register(stateName: string, func: StateBuilder<T>) {
     this.states[stateName] = func
   }
 
+  private createBuilder(...args: any[]): EntityBuilder<T>  {
+    return new EntityBuilder(this.states, this.defaults, this.entity, ...args)
+  }
+
   build(...args: any[]): EntityBuilder<T> {
-    return new EntityBuilder<T>(this.states, this.entity, ...args)
+    return this.createBuilder(...args)
   }
 
   state(stateName: string): EntityBuilder<T> {
-    return new EntityBuilder<T>(this.states, this.entity).state(stateName)
+    return this.createBuilder().state(stateName)
   }
 
   with(builder: StateBuilder<T>): EntityBuilder<T> {
-    return new EntityBuilder<T>(this.states, this.entity).with(builder)
+    return this.createBuilder().with(builder)
   }
 
   one(): T {
-    return new EntityBuilder<T>(this.states, this.entity).one()
+    return this.createBuilder().one()
   }
 
   many(count: number): T[] {
-    return new EntityBuilder<T>(this.states, this.entity).many(count)
+    return this.createBuilder().many(count)
   }
 }

@@ -5,7 +5,7 @@ Easy, unopinionated and intuitive Typescript fixtures.
 `yarn add hefty --dev`
 
 ## Usage
-Hefty lets you create factories, chain multiple states and override those states too.
+Hefty lets you create factories, chain multiple states and override those states too. Check out the tests for more examples.
 
 ### Create a Factory
 States need to be registered in the constructor of your factory.
@@ -73,3 +73,31 @@ const user: User = factory.build(new Company(), 'Jane Doe').state('email confirm
 ```
 
 Any params passed to `build()` are passed to the constructor for each entity.
+
+### Factories with default states
+```
+// UserFactory.ts
+export default class UserFactory extends Factory<User> {
+  constructor(...defaults: string[]) {
+    super(User, ...defaults)
+    this.register('onboarded', this.onboarded)
+    this.register('email confirmed', this.emailConfirmed)
+  }
+
+  protected onboarded(): Partial<User> {
+    return {
+      onboarded: true
+    }
+  }
+
+  protected emailConfirmed(): Partial<User> {
+    return {
+      emailConfirmed: true
+    }
+  }
+}
+
+const factory = new UserFactory('email confirmed')
+```
+
+Any extra strings you pass to the factory base class will be treated as default states. These will be applied before any other states/overrides.

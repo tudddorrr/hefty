@@ -4,10 +4,9 @@ import User from './fixtures/User'
 import Game from './fixtures/Game'
 import Player from './fixtures/Player'
 
-const userFactory = new UserFactory()
-const playerFactory = new PlayerFactory()
-
 describe('classes without constructors', () => {
+  const userFactory = new UserFactory()
+
   it('should create a default entity', () => {
     expect(userFactory.one()).toBeTruthy()
   })
@@ -73,6 +72,7 @@ describe('classes without constructors', () => {
 })
 
 describe('classes with constructors', () => {
+const playerFactory = new PlayerFactory()
   const game = new Game()
 
   it('should create a default entity with constructors', () => {
@@ -90,6 +90,8 @@ describe('classes with constructors', () => {
 })
 
 describe('retain class info', () => {
+  const userFactory = new UserFactory()
+
   it('should retain class info for one entity', () => {
     expect(userFactory.one()).toBeInstanceOf(User)
   })
@@ -121,5 +123,18 @@ describe('retain class info', () => {
     for (let user of users) {
       expect(user).toBeInstanceOf(User)
     }
+  })
+})
+
+describe('default states', () => {
+  it('should apply a default state', () => {
+    const userFactory = new UserFactory('email confirmed')
+    expect(userFactory.one().emailConfirmed).toBe(true)
+  })
+
+  it('should apply many default states', () => {
+    const userFactory = new UserFactory('email confirmed', 'onboarded')
+    expect(userFactory.one().emailConfirmed).toBe(true)
+    expect(userFactory.one().onboarded).toBe(true)
   })
 })
