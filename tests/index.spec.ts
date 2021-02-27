@@ -143,3 +143,30 @@ describe('default states', () => {
     expect(() => userFactory.one()).toThrow(/Did you forget to register it?/)
   })
 })
+
+describe('state builder params', () => {
+  it('should pass in the current entity, the current index and all other entities to the state function', () => {
+    const playerFactory = new PlayerFactory('base')
+    let count = 0
+    for (let player of playerFactory.build(new Game).many(5)) {
+      expect(player.id).toBe(count)
+      expect(player.friendCount).toBe(5)
+      count++
+    }
+  })
+
+  it('should pass in the current entity, the current index and all other entities to the with function', () => {
+    const playerFactory = new PlayerFactory()
+    const players = playerFactory.build(new Game).with((entity: Player, idx: number, players: Player[]) => ({
+      id: idx,
+      friendCount: players.length
+    })).many(5)
+
+    let count = 0
+    for (let player of players) {
+      expect(player.id).toBe(count)
+      expect(player.friendCount).toBe(5)
+      count++
+    }
+  })
+})

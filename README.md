@@ -8,7 +8,7 @@ Easy, unopinionated and intuitive Typescript fixtures.
 Hefty lets you create factories, chain multiple states and override those states too. Check out the tests for more examples.
 
 ### Create a Factory
-States need to be registered in the constructor of your factory. States are called with the same params you get with `Array.map()`.
+States need to be registered in the constructor of your factory. States (and `with()`) are called with the same params you get with `Array.map()`.
 
 ```
 // User.ts

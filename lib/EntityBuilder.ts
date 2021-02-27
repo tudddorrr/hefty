@@ -12,7 +12,7 @@ export class EntityBuilder<T> {
     this.args = args
     this.Entity = Entity
 
-    for (let stateName of defaults) {
+    for (let stateName of defaults.filter((state) => !!state)) {
       if (this.states?.[stateName]) {
         this.builders.push(this.states[stateName])
       } else {
@@ -24,7 +24,7 @@ export class EntityBuilder<T> {
   private build(entities: T[]): T[] {
     return entities.map((entity: T, idx: number) => {
       for (let builder of this.builders) {
-        Object.assign(entity, builder(entity, idx))
+        Object.assign(entity, builder(entity, idx, entities))
       }
       return entity
     })
