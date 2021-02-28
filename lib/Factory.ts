@@ -37,11 +37,11 @@ export class Factory<T> {
     return this.createBuilder().with(builder)
   }
 
-  one(): T {
+  async one(): Promise<T> {
     return this.createBuilder().one()
   }
 
-  many(count: number): T[] {
+  async many(count: number): Promise<T[]> {
     return this.createBuilder().many(count)
   }
 }

@@ -3,4 +3,6 @@ export default class User {
   email: string
   emailConfirmed: boolean
   onboarded: boolean
+  password: string
+  type: string
 }

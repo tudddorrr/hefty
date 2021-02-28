@@ -21,13 +21,13 @@ export class EntityBuilder<T> {
     }
   }
 
-  private build(entities: T[]): T[] {
-    return entities.map((entity: T, idx: number) => {
+  private async build(entities: T[]): Promise<T[]> {
+    return await Promise.all(entities.map(async (entity: T, idx: number) => {
       for (let builder of this.builders) {
-        Object.assign(entity, builder(entity, idx, entities))
+        Object.assign(entity, await builder(entity, idx, entities))
       }
       return entity
-    })
+    }))
   }
 
   private makeEntity(): T {
@@ -48,11 +48,11 @@ export class EntityBuilder<T> {
     return this
   }
 
-  one(): T {
-    return this.build([this.makeEntity()])[0]
+  async one(): Promise<T> {
+    return (await this.build([this.makeEntity()]))[0]
   }
 
-  many(count: number): T[] {
-    return this.build([...new Array(count)].map(() => this.makeEntity()))
+  async many(count: number): Promise<T[]> {
+    return await this.build([...new Array(count)].map(() => this.makeEntity()))
   }
 }
