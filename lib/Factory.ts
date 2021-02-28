@@ -17,7 +17,8 @@ export class Factory<T> {
   }
 
   protected register(stateName: string, func: StateBuilder<T>) {
-    this.states[stateName] = func
+    const state = func.bind(this)
+    this.states[stateName] = state
   }
 
   private createBuilder(...args: any[]): EntityBuilder<T>  {

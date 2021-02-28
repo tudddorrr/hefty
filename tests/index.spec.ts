@@ -3,6 +3,7 @@ import PlayerFactory from './fixtures/PlayerFactory'
 import User from './fixtures/User'
 import Game from './fixtures/Game'
 import Player from './fixtures/Player'
+import GameFactory from './fixtures/GameFactory'
 
 describe('classes without constructors', () => {
   const userFactory = new UserFactory()
@@ -168,5 +169,23 @@ describe('state builder params', () => {
       expect(player.friendCount).toBe(5)
       count++
     }
+  })
+})
+
+describe('preserving context', () => {
+  const userFactory = new UserFactory()
+  const users = userFactory.many(10)
+  const gameFactory = new GameFactory(users)
+
+  it('should preserve context for a public state', () => {
+    expect(gameFactory.state('team1').one().teamMembers.length).toBeGreaterThan(0)
+  })
+
+  it('should preserve context for a protected state', () => {
+    expect(gameFactory.state('team2').one().teamMembers.length).toBeGreaterThan(0)
+  })
+
+  it('should preserve context for a private state', () => {
+    expect(gameFactory.state('team3').one().teamMembers.length).toBeGreaterThan(0)
   })
 })
