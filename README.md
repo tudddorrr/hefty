@@ -56,7 +56,7 @@ const user2: User = await factory.state('email confirmed').one()
 const user3: User = await factory.state('email confirmed').state('onboarded').one()
 // -> emailConfirmed = true, onboarded = true
 
-const user4: User = await factory.state('email confirmed).with(() => ({ email: hello@web.site })).one()
+const user4: User = await factory.state('email confirmed').with(() => ({ email: hello@web.site })).one()
 // -> emailConfirmed = true, email = hello@web.site
 
 const users: User[] = await factory.state('email confirmed').many(3)
@@ -68,8 +68,7 @@ const users: User[] = await factory.state('email confirmed').many(3)
 ### Entities with constructors
 ```
 const factory = new UserFactory()
-
-const user: User = await factory.build(new Company(), 'Jane Doe').state('email confirmed).one()
+const user: User = await factory.build(new Company(), 'Jane Doe').state('email confirmed').one()
 ```
 
 Any params passed to `build()` are passed to the constructor for each entity.
