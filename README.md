@@ -108,3 +108,22 @@ const factory = await new UserFactory('email confirmed').one()
 ```
 
 Any extra strings you pass to the factory base class will be treated as default states. These will be applied before any other states/overrides.
+
+### Async functions
+```
+export default class UserFactory extends Factory<User> {
+  constructor() {
+    super(User, 'loginable')
+    this.register('loginable', this.loginable)
+  }
+
+  async loginable(): Promise<Partial<User>> {
+    return {
+      password: await bcrypt.hash('password', 10)
+    }
+  }
+}
+```
+
+Hefty will automatically resolve any promise-based states or `with()` callbacks.
+
