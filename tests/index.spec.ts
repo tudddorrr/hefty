@@ -4,6 +4,7 @@ import User from './fixtures/User'
 import Game from './fixtures/Game'
 import Player from './fixtures/Player'
 import GameFactory from './fixtures/GameFactory'
+import bcrypt from 'bcrypt'
 
 describe('classes without constructors', () => {
   const userFactory = new UserFactory()
@@ -239,5 +240,12 @@ describe('async functions', () => {
       expect(user.email).toBe('admin@test.com')
       expect(user.type).toBe('admin')
     }
+  })
+
+  it('should resolve async overrides', async () => {
+    const user = await new UserFactory().with(async () => ({
+      password: await bcrypt.hash('password', 10)
+    })).one()
+    expect(user.password).toBeTruthy()
   })
 })
