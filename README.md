@@ -77,7 +77,7 @@ Any params passed to `build()` are passed to the constructor for each entity.
 ```
 export default class UserFactory extends Factory<User> {
   constructor() {
-    super(User, 'base')
+    super(User, 'base', 'email confirmed')
 
     this.register('base', this.base)
     this.register('onboarded', this.onboarded)
@@ -103,7 +103,7 @@ export default class UserFactory extends Factory<User> {
   }
 }
 
-const factory = await new UserFactory('email confirmed').one()
+const factory = await new UserFactory().one()
 // => createdAt = today, emailConfirmed: true 
 ```
 
