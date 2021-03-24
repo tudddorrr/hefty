@@ -68,10 +68,10 @@ const users: User[] = await factory.state('email confirmed').many(3)
 ### Entities with constructors
 ```
 const factory = new UserFactory()
-const user: User = await factory.build(new Company(), 'Jane Doe').state('email confirmed').one()
+const user: User = await factory.construct(new Company(), 'Jane Doe').state('email confirmed').one()
 ```
 
-Any params passed to `build()` are passed to the constructor for each entity.
+Any params passed to `construct()` are passed to the constructor for each entity.
 
 ### Factories with default states
 ```

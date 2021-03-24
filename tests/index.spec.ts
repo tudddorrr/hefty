@@ -84,11 +84,11 @@ const playerFactory = new PlayerFactory()
   const game = new Game()
 
   it('should create a default entity with constructors', async () => {
-    expect((await playerFactory.build(game).one()).game).toEqual({ name: 'Crawle' })
+    expect((await playerFactory.construct(game).one()).game).toEqual({ name: 'Crawle' })
   })
 
   it('should create many default entities with constructors', async () => {
-    const players: Player[] = await playerFactory.build(game).many(3)
+    const players: Player[] = await playerFactory.construct(game).many(3)
     expect(players).toHaveLength(3)
 
     for (let player of players) {
@@ -163,7 +163,7 @@ describe('state builder params', () => {
   it('should pass in the current entity, the current index and all other entities to the state function', async () => {
     const playerFactory = new PlayerFactory('base')
     let count = 0
-    for (let player of await playerFactory.build(new Game).many(5)) {
+    for (let player of await playerFactory.construct(new Game).many(5)) {
       expect(player.id).toBe(count)
       expect(player.friendCount).toBe(5)
       count++
@@ -172,7 +172,7 @@ describe('state builder params', () => {
 
   it('should pass in the current entity, the current index and all other entities to the with function', async () => {
     const playerFactory = new PlayerFactory()
-    const players = await playerFactory.build(new Game).with((entity: Player, idx: number, players: Player[]) => ({
+    const players = await playerFactory.construct(new Game).with((entity: Player, idx: number, players: Player[]) => ({
       id: idx,
       friendCount: players.length
     })).many(5)

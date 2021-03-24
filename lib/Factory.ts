@@ -25,7 +25,7 @@ export class Factory<T> {
     return new EntityBuilder(this.states, this.defaults, this.entity, ...args)
   }
 
-  build(...args: any[]): EntityBuilder<T> {
+  construct(...args: any[]): EntityBuilder<T> {
     return this.createBuilder(...args)
   }
 
