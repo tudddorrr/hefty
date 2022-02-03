@@ -3,7 +3,7 @@ import Player from './Player'
 
 export default class PlayerFactory extends Factory<Player> {
   constructor(defaultState?: string) {
-    super(Player, defaultState)
+    super(Player, defaultState ?? 'base')
 
     this.register('base', this.base)
   }
