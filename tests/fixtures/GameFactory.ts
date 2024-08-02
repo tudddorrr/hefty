@@ -9,37 +9,15 @@ export default class GameFactory extends Factory<Game> {
   constructor(availableUsers: User[]) {
     super(Game)
     this.availableUsers = availableUsers
-
-    this.register('team1', this.team1)
-    this.register('team2', this.team2)
-    this.register('team3', this.team3)
   }
 
-  team1(game: Game): Partial<Game> {
+  team1() {
     const teamMembers = []
     teamMembers.push(...this.buildTeam())
 
-    return {
+    return this.state(async () => ({
       teamMembers
-    }
-  }
-
-  protected team2(game: Game): Partial<Game> {
-    const teamMembers = []
-    teamMembers.push(...this.buildTeam())
-
-    return {
-      teamMembers
-    }
-  }
-
-  private team3(game: Game): Partial<Game> {
-    const teamMembers = []
-    teamMembers.push(...this.buildTeam())
-
-    return {
-      teamMembers
-    }
+    }))
   }
 
   private buildTeam(): User[] {

@@ -2,13 +2,13 @@
 Easy, unopinionated and intuitive Typescript fixtures.
 
 ## Installation
-`yarn add hefty --dev`
+`npm install hefty --save-dev`
 
 ## Usage
 Hefty lets you create factories, chain multiple states and override those states too. Check out the tests for more examples.
 
 ### Create a Factory
-States need to be registered in the constructor of your factory. States (and `with()`) are called with the same params you get with `Array.map()`.
+Factories are made up of entities with one or more states applied to them. States are called with the same params you get with `Array.map()`.
 
 ```
 // User.ts
@@ -24,21 +24,18 @@ import { Factory } from 'hefty'
 class UserFactory extends Factory<User> {
   constructor() {
     super(User)
-
-    this.register('email confirmed', this.hasConfirmed)
-    this.register('onboarded', this.hasOnboarded)
   }
 
-  hasConfirmed(): Partial<User> {
-    return {
+  hasConfirmed(): this {
+    return this.state(() => ({
       emailConfirmed: true
-    }
+    }))
   }
 
-  hasOnboarded(): Partial<User> {
-    return {
+  hasOnboarded(): this {
+    return this.state(() => ({
       onboarded: true
-    }
+    }))
   }
 }
 ```
@@ -50,56 +47,47 @@ const factory = new UserFactory()
 const user1: User = await factory.one()
 // -> emailConfirmed = false
 
-const user2: User = await factory.state('email confirmed').one()
+const user2: User = await factory.emailConfirmed().one()
 // -> emailConfirmed = true
 
-const user3: User = await factory.state('email confirmed').state('onboarded').one()
+const user3: User = await factory.emailConfirmed().onboarded().one()
 // -> emailConfirmed = true, onboarded = true
 
-const user4: User = await factory.state('email confirmed').with(() => ({ email: hello@web.site })).one()
+const user4: User = await factory.emailConfirmed().state(() => ({ email: hello@web.site })).one()
 // -> emailConfirmed = true, email = hello@web.site
 
-const users: User[] = await factory.state('email confirmed').many(3)
+const users: User[] = await factory.emailConfirmed().many(3)
 // -> generates 3 users with emailConfirmed = true
 ```
 
-`state()` and `with()` can be chained as many times as you like in any order. They'll all be applied sequentially when `one()` or `many()` is called.
-
-### Entities with constructors
-```
-const factory = new UserFactory()
-const user: User = await factory.construct(new Company(), 'Jane Doe').state('email confirmed').one()
-```
-
-Any params passed to `construct()` are passed to the constructor for each entity.
+State functions defined in the factory and `state()` can be chained as many times as you like in any order. They'll all be applied sequentially when `one()` or `many()` is called.
 
 ### Factories with default states
+Factories can implement a `definition()` function that is called before any other states are applied.
+
 ```
 export default class UserFactory extends Factory<User> {
   constructor() {
-    super(User, 'base', 'email confirmed')
-
-    this.register('base', this.base)
-    this.register('onboarded', this.onboarded)
-    this.register('email confirmed', this.emailConfirmed)
+    super(User)
   }
 
-  base(): Partial<User> {
-    return {
-      createdAt: 'today'
-    }
-  }
-
-  onboarded(): Partial<User> {
-    return {
-      onboarded: true
-    }
-  }
-
-  emailConfirmed(): Partial<User> {
-    return {
+  protected definition(): void {
+    this.state(() => {
+      createdAt: 'today',
       emailConfirmed: true
-    }
+    })
+  }
+
+  onboarded(): this {
+    return this.state(() => ({
+      onboarded: true
+    }))
+  }
+
+  emailConfirmed(): this {
+    return this.state(() => ({
+      emailConfirmed: true
+    }))
   }
 }
 
@@ -107,23 +95,37 @@ const factory = await new UserFactory().one()
 // => createdAt = today, emailConfirmed: true 
 ```
 
-Any extra strings you pass to the factory base class will be treated as default states. These will be applied before any other states/overrides.
+### Promises
+Hefty will automatically resolve any promise-based `state()` callbacks.
 
-### Async functions
 ```
 export default class UserFactory extends Factory<User> {
   constructor() {
-    super(User, 'loginable')
-    this.register('loginable', this.loginable)
+    super(User)
   }
 
-  async loginable(): Promise<Partial<User>> {
-    return {
+  protected definition(): void {
+    this.state(async () => ({
       password: await bcrypt.hash('password', 10)
-    }
+    }))
   }
 }
 ```
 
-Hefty will automatically resolve any promise-based states or `with()` callbacks.
+### Constructors
+You can pass constructor params to the `construct()` function. Entities will be initialised with these params before the definition is applied.
 
+```
+// User.ts
+class User {
+  email: string
+
+  constructor(email: string) {
+    this.email = email
+  }
+}
+
+// User.test.ts
+const email = 'hello@mail.com'
+expect((await new UserFactory().construct(email).one()).email).toBe(email)
+```

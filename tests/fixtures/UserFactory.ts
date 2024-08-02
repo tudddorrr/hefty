@@ -3,38 +3,41 @@ import User from './User'
 import bcrypt from 'bcrypt'
 
 export default class UserFactory extends Factory<User> {
-  constructor(...defaults: string[]) {
-    super(User, ...defaults)
-
-    this.register('onboarded', this.onboarded)
-    this.register('email confirmed', this.emailConfirmed)
-    this.register('loginable', this.loginable)
-    this.register('admin', this.admin)
+  constructor() {
+    super(User)
   }
 
-  protected onboarded(): Partial<User> {
-    return {
+  protected definition(): void {
+    this.state(() => ({
+      onboarded: false,
+      emailConfirmed: false,
+      type: 'basic'
+    }))
+  }
+
+  onboarded() {
+    return this.state(() => ({
       onboarded: true
-    }
+    }))
   }
 
-  protected emailConfirmed(): Partial<User> {
-    return {
+  emailConfirmed() {
+    return this.state(() => ({
       emailConfirmed: true
-    }
+    }))
   }
 
-  protected async loginable(): Promise<Partial<User>> {
-    return {
+  loginable() {
+    return this.state(async () => ({
       password: await bcrypt.hash('password', 10)
-    }
+    }))
   }
 
-  protected async admin(): Promise<Partial<User>> {
-    return {
+  admin() {
+    return this.state(async () => ({
       email: 'admin@test.com',
       password: await bcrypt.hash('password', 10),
       type: 'admin'
-    }
+    }))
   }
 }

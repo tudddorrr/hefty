@@ -2,16 +2,14 @@ import { Factory } from '../../lib/Factory'
 import Player from './Player'
 
 export default class PlayerFactory extends Factory<Player> {
-  constructor(defaultState?: string) {
-    super(Player, defaultState ?? 'base')
-
-    this.register('base', this.base)
+  constructor() {
+    super(Player)
   }
 
-  protected base(entity: Player, idx: number, players: Player[]): Partial<Player> {
-    return {
+  definition() {
+    this.state(async (player: Player, idx: number, players: Player[]) => ({
       id: idx,
       friendCount: players.length
-    }
+    }))
   }
 }

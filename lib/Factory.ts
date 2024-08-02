@@ -1,47 +1,62 @@
-import { EntityBuilder } from './EntityBuilder'
-import { StateBuilder, StatesRegistry } from './State'
-
-interface Entity<T> {
-  new (...args): T
+type Entity<T> = {
+  new (...args: any[]): T
 }
 
+type StateBuilder<T> = (entity: T, idx: number, entities: T[]) => Partial<T> | Promise<Partial<T>>
+
 export class Factory<T> {
-  private states: StatesRegistry<T>
   private entity: Entity<T>
-  private defaults: string[]
+  private states: StateBuilder<T>[] = []
+  private params: unknown[] = []
 
-  constructor(entity: Entity<T>, ...defaults: string[]) {
-    this.states = {}
+  constructor(entity: Entity<T>) {
     this.entity = entity
-    this.defaults = defaults
   }
 
-  protected register(stateName: string, func: StateBuilder<T>) {
-    const state = func.bind(this)
-    this.states[stateName] = state
+  state(builder: StateBuilder<T>): this {
+    this.states.push(builder)
+    return this
   }
 
-  private createBuilder(...args: any[]): EntityBuilder<T>  {
-    return new EntityBuilder(this.states, this.defaults, this.entity, ...args)
+  construct(...params: unknown[]): this {
+    this.params = params
+    return this
   }
 
-  construct(...args: any[]): EntityBuilder<T> {
-    return this.createBuilder(...args)
+  protected definition(): void {
+    this.state(() => ({}))
   }
 
-  state(stateName: string): EntityBuilder<T> {
-    return this.createBuilder().state(stateName)
+  private async applyDefinition(entity: T, idx: number, entities: T[]): Promise<T> {
+    this.definition()
+    return Object.assign(entity, await this.states.pop()(entity, idx, entities))
   }
 
-  with(builder: StateBuilder<T>): EntityBuilder<T> {
-    return this.createBuilder().with(builder)
+  private async applyStates(entity: T, idx: number, entities: T[]): Promise<T> {
+    entity = await this.applyDefinition(entity, idx, entities)
+
+    for (let state of this.states) {
+      entity = Object.assign(entity, await state(entity, idx, entities))
+    }
+
+    return entity
   }
 
-  async one(): Promise<T> {
-    return this.createBuilder().one()
+  private makeEntity(): T {
+    return new this.entity(...this.params)
   }
 
-  async many(count: number): Promise<T[]> {
-    return this.createBuilder().many(count)
+  async one<F extends Factory<T>>(this: F): Promise<T> {
+    const entity = this.makeEntity()
+    return await this.applyStates(entity, 0, [entity])
+  }
+
+  async many<F extends Factory<T>>(this: F, count: number): Promise<T[]> {
+    const entities = Array.from({ length: count }, () => this.makeEntity())
+    for (let idx = 0; idx < entities.length; idx++) {
+      entities[idx] = await this.applyStates(entities[idx], idx, entities)
+    }
+
+    return entities
   }
 }

@@ -15,23 +15,23 @@ describe('retain class info', () => {
   })
 
   it('should retain class info with a state', async () => {
-    expect(await userFactory.state('onboarded').one()).toBeInstanceOf(User)
+    expect(await userFactory.onboarded().one()).toBeInstanceOf(User)
   })
 
   it('should retain class info with many states', async () => {
-    expect(await userFactory.state('onboarded').state('email confirmed').one()).toBeInstanceOf(User)
+    expect(await userFactory.onboarded().emailConfirmed().one()).toBeInstanceOf(User)
   })
 
   it('should retain class info with overrides', async () => {
-    expect(await userFactory.with(() => ({ name: 'Bob' })).one()).toBeInstanceOf(User)
+    expect(await userFactory.state(() => ({ name: 'Bob' })).one()).toBeInstanceOf(User)
   })
 
   it('should retain class info with states and overrides', async () => {
-    expect(await userFactory.state('email confirmed').with(() => ({ name: 'Bob' })).one()).toBeInstanceOf(User)
+    expect(await userFactory.emailConfirmed().state(() => ({ name: 'Bob' })).one()).toBeInstanceOf(User)
   })
 
   it('should retain class info with states and overrides for many entities', async () => {
-    const users = await userFactory.state('email confirmed').with(() => ({ name: 'Bob' })).many(3)
+    const users = await userFactory.emailConfirmed().state(() => ({ name: 'Bob' })).many(3)
     for (let user of users) {
       expect(user).toBeInstanceOf(User)
     }
